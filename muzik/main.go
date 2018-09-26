@@ -68,23 +68,30 @@ func main() {
 	if validate == true {
 		fmt.Println("The directory is valid")
     file_list, _ := iterate_over(d)
+ 		if len(file_list) > 0 {
+				for _,file := range file_list {
+						fmt.Println("Now playing",file)
+						f, err := os.Open(file)
+						if err != nil {
+							log.Fatal(err)
+						}
 
-		for _,file := range file_list {
-			fmt.Println("Now playing",file)
-		f, err := os.Open(file)
-		if err != nil {
-		log.Fatal(err)
-	}
+
+							s, format, _ := mp3.Decode(f)
+							speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+							playing := make(chan struct{})
+							speaker.Play(beep.Seq(s, beep.Callback(func() {
+								close(playing)
+								})))
+
+								<-playing
+							}
+						} else {
+							fmt.Println(" But there are no MP3 files present in the directory")
+						}
 
 
-	s, format, _ := mp3.Decode(f)
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-	playing := make(chan struct{})
-	speaker.Play(beep.Seq(s, beep.Callback(func() {
-		close(playing)
-	})))
-
-	<-playing
-	}
-		}
+					} else{
+						fmt.Println("Please enter a valid directory")
+					}
 }
